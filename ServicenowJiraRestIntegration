@@ -1,0 +1,37 @@
+// Script to create a Jira issue using outbound REST message
+
+(function createJiraIssue() {
+    var request = new sn_ws.RESTMessageV2('Jira - Create Issue', 'post');
+    
+    // Set basic auth (use HTTP connection alias or set manually)
+    request.setBasicAuth('jira_user', 'jira_token_or_password');
+    
+    // Set headers
+    request.setRequestHeader("Content-Type", "application/json");
+
+    // Construct payload
+    var payload = {
+        "fields": {
+            "project": {
+                "key": "DEMO"
+            },
+            "summary": "Created from ServiceNow Incident " + current.number,
+            "description": "Incident Description: " + current.short_description,
+            "issuetype": {
+                "name": "Task"
+            }
+        }
+    };
+
+    request.setRequestBody(JSON.stringify(payload));
+
+    try {
+        var response = request.execute();
+        var responseBody = response.getBody();
+        var httpStatus = response.getStatusCode();
+        gs.info("Jira Response Status: " + httpStatus);
+        gs.info("Jira Response Body: " + responseBody);
+    } catch (ex) {
+        gs.error("Failed to send Jira issue: " + ex.message);
+    }
+})();
