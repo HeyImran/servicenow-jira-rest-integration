@@ -35,3 +35,53 @@
         gs.error("Failed to send Jira issue: " + ex.message);
     }
 })();
+
+
+
+createJiraIssue: function(summary, description) {
+    try {
+        var email = 'your_email@example.com';
+        var token = 'your_jira_api_token';
+        var auth = 'Basic ' + GlideStringUtil.base64Encode(email + ':' + token);
+
+        var r = new sn_ws.RESTMessageV2();
+        r.setEndpoint('https://yourcompany.atlassian.net/rest/api/3/issue');
+        r.setHttpMethod('POST');
+        r.setRequestHeader('Authorization', auth);
+        r.setRequestHeader('Content-Type', 'application/json');
+
+        var payload = {
+            "fields": {
+                "project": { "key": "SNI" },
+                "summary": summary,
+                "description": {
+                    "type": "doc",
+                    "version": 1,
+                    "content": [
+                        {
+                            "type": "paragraph",
+                            "content": [
+                                { "type": "text", "text": description }
+                            ]
+                        }
+                    ]
+                },
+                "issuetype": { "name": "Task" }
+            }
+        };
+
+        r.setRequestBody(JSON.stringify(payload));
+        var response = r.execute();
+        var responseBody = response.getBody();
+        var httpStatus = response.getStatusCode();
+
+        gs.info('Jira Response Status: ' + httpStatus);
+        gs.info('Jira Response Body: ' + responseBody);
+
+        return responseBody;  // << THIS is where we change it
+    } catch (ex) {
+        gs.error('JiraIntegrationUtils Error: ' + ex.message);
+        return null;
+    }
+}
+
