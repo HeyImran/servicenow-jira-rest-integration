@@ -1,0 +1,6 @@
+var jira = new JiraIntegrationUtils();
+var issueKey = jira.createJiraIssue(String(current.short_description), String(current.description));
+if (issueKey) {
+    current.u_jira_ticket = issueKey;  // Custom field
+    current.update();
+}
